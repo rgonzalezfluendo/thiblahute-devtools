@@ -15,6 +15,7 @@ def run(options, args):
     """ Create image from dot files. """
     if options.target is not None:
         os.system("rm -if %s/*" % DOTDIR)
+        print("mkdir %s" % DOTDIR)
         os.system("mkdir %s" % DOTDIR)
         print("scp %s:%s* %s" % (options.target, DOTDIR_RAW, DOTDIR))
         os.system("scp %s:%s* %s" % (options.target, DOTDIR_RAW, DOTDIR))
@@ -29,20 +30,14 @@ def run(options, args):
                 os.makedirs(DOTDIR)
         else:
             dotfile = os.path.join(DOTDIR, args[0])
-        OUTFILE = os.path.join(DOTDIR, "%s.svg" % args[0])
-        cmd = "dot '%s' -Tsvg -o '%s' && gio open '%s'" % \
-            (dotfile, OUTFILE, OUTFILE)
+        cmd = ("xdot '%s'" % dotfile)
     else:
         play_pause_fnames = sorted(glob(os.path.join(DOTDIR, "*PAUSED_PLAYING*.dot")))
         error_fnames = sorted(glob(os.path.join(DOTDIR, "*error.dot*")))
         if error_fnames and not options.choose:
-            OUTFILE = os.path.join(DOTDIR, "%s.svg" % error_fnames[-1])
-            cmd = "dot '%s' -Tsvg -o '%s' && xdg-open '%s'" % (
-                error_fnames[-1], OUTFILE, OUTFILE)
+            cmd = ("xdot '%s'" % error_fnames[-1])
         elif play_pause_fnames and not options.choose:
-            OUTFILE = os.path.join(DOTDIR, "%s.svg" % play_pause_fnames[-1])
-            cmd = "dot '%s' -Tsvg -o '%s' && xdg-open '%s'" % (
-                play_pause_fnames[-1], OUTFILE, OUTFILE)
+            cmd = ("xdot '%s'" % play_pause_fnames[-1])
         else:
             files = sorted([f for f in os.listdir(DOTDIR) if f.endswith('.dot')], key=lambda x: x.split('-')[1] + x.split('-')[0])
             txt = 'Choose a file:\n'
@@ -53,9 +48,7 @@ def run(options, args):
 
             res = input(txt)
             print(res)
-            OUTFILE = os.path.join(DOTDIR, "%s.svg" % files[int(res)])
-            cmd = "dot '%s' -Tsvg -o '%s' && xdg-open '%s'" % \
-                (os.path.join(DOTDIR, files[int(res)]), OUTFILE, OUTFILE)
+            cmd = ("xdot '%s'" % os.path.join(DOTDIR, files[int(res)]))
 
     print("Launching %s" % cmd)
 
